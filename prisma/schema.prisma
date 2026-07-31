@@ -1,0 +1,141 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String  @id @default(uuid())
+  username     String  @unique @db.VarChar(128)
+  passwordHash String  @db.VarChar(255)
+  avatarPath   String?
+  displayName  String  @db.VarChar(32)
+
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz()
+  deletedAt DateTime?
+
+  forums          Forum[]
+  posts           Post[]
+  postUserRatings PostUserRating[]
+  comments        Comment[]
+}
+
+model Forum {
+  id      String @id @default(uuid())
+  title   String @db.VarChar(128)
+  slug    String @unique @db.VarChar(128)
+  ownerId String
+
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz()
+  deletedAt DateTime? @db.Timestamptz()
+
+  owner User @relation(fields: [ownerId], onDelete: Cascade, references: [id])
+
+  forumCategories ForumCategory[]
+  posts           Post[]
+
+  @@index([ownerId])
+  @@index([deletedAt])
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @db.VarChar(64)
+  slug String @unique @db.VarChar(32)
+
+  forumCategories ForumCategory[]
+}
+
+model ForumCategory {
+  forumId    String
+  categoryId String
+
+  forum    Forum    @relation(fields: [forumId], onDelete: Cascade, references: [id])
+  category Category @relation(fields: [categoryId], onDelete: Cascade, references: [id])
+
+  @@id([forumId, categoryId])
+  @@index([categoryId])
+}
+
+model Post {
+  id       String @id @default(uuid())
+  title    String @db.VarChar(128)
+  slug     String @db.VarChar(128)
+  content  String @db.Text
+  authorId String
+  forumId  String
+
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz()
+  deletedAt DateTime? @db.Timestamptz()
+
+  author User  @relation(fields: [authorId], onDelete: Cascade, references: [id])
+  forum  Forum @relation(fields: [forumId], onDelete: Cascade, references: [id])
+
+  postTags        PostTag[]
+  postUserRatings PostUserRating[]
+  comments        Comment[]
+
+  @@unique([forumId, slug])
+  @@index([forumId, createdAt])
+  @@index([forumId, deletedAt])
+  @@index([authorId])
+  @@index([forumId])
+}
+
+model Tag {
+  id   String @id @default(uuid())
+  name String @db.VarChar(64)
+  slug String @unique @db.VarChar(32)
+
+  postTags PostTag[]
+}
+
+model PostTag {
+  postId String
+  tagId  String
+
+  post Post @relation(fields: [postId], onDelete: Cascade, references: [id])
+  tag  Tag  @relation(fields: [tagId], onDelete: Cascade, references: [id])
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model Comment {
+  id       String @id @default(uuid())
+  content  String @db.Text
+  authorId String
+  postId   String
+
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz()
+  deletedAt DateTime?
+
+  author User @relation(fields: [authorId], onDelete: Cascade, references: [id])
+  post   Post @relation(fields: [postId], onDelete: Cascade, references: [id])
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([postId, createdAt])
+  @@index([deletedAt])
+}
+
+model PostUserRating {
+  postId    String
+  userId    String
+  rating    Int
+  createdAt DateTime @default(now()) @db.Timestamptz()
+
+  post Post @relation(fields: [postId], onDelete: Cascade, references: [id])
+  user User @relation(fields: [userId], onDelete: Cascade, references: [id])
+
+  @@id([postId, userId])
+  @@index([userId])
+  @@index([rating])
+}
