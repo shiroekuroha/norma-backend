@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: ./
+    ports:
+      - "8000:8000"
+    environment:
+      JWT_SECRET: norma_is_so_cunny
+      DATABASE_URL: postgresql://admin:Admin123!@postgres:5432/norma_db?schema=public
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Admin123!
+      POSTGRES_DB: norma_db
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres-data:
