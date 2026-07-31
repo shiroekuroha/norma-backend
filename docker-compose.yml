@@ -5,7 +5,7 @@ services:
       - "8000:8000"
     environment:
       JWT_SECRET: norma_is_so_cunny
-      DATABASE_URL: postgresql://admin:Admin123!@postgres:5432/norma_db?schema=public
+      DATABASE_URL: postgresql://admin:Admin123!@localhost:5432/norma_db?schema=public
     depends_on:
       - postgres
 
