@@ -9,10 +9,11 @@ datasource db {
 
 model User {
   id           String  @id @default(uuid())
-  username     String  @unique @db.VarChar(128)
+  username     String  @db.VarChar(128)
   passwordHash String  @db.VarChar(255)
   avatarPath   String?
   displayName  String  @db.VarChar(32)
+  email        String?
 
   createdAt DateTime  @default(now()) @db.Timestamptz()
   updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz()

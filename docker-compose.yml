@@ -6,6 +6,7 @@ services:
     environment:
       JWT_SECRET: norma_is_so_cunny
       DATABASE_URL: postgresql://admin:Admin123!@localhost:5432/norma_db?schema=public
+      BCRYPT_SALT: 16
     depends_on:
       - postgres
 
